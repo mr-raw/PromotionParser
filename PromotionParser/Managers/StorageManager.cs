@@ -36,7 +36,7 @@ namespace PromotionParser.Managers
                 {
                     f.WriteToFile();
                 }
-            }            
+            }
         }
 
         /// <summary>
