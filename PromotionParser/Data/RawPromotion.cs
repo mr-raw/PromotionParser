@@ -10,6 +10,5 @@ namespace PromotionParser.Data
     {
         public int StartRow { get; set; }
         public int EndRow { get; set; }
-
     }
 }
