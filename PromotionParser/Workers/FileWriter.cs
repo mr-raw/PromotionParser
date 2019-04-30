@@ -18,7 +18,7 @@ namespace PromotionParser.Workers
 
         public void WriteToFile()
         {
-            if (File.Exists(filename.ToString()))
+            if (File.Exists(filename.FullName))
             {
                 MessageBox.Show("Saving data to xml file.");
             }
