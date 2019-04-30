@@ -53,6 +53,7 @@
     <Compile Include="Data\IReport.cs" />
     <Compile Include="Data\PromotionItem.cs" />
     <Compile Include="Data\RawPromotion.cs" />
+    <Compile Include="Data\TestPromotion.cs" />
     <Compile Include="Managers\StorageManager.cs" />
     <Compile Include="PromotionParser.cs" />
     <Compile Include="Workers\FileReader.cs" />
