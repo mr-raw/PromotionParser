@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.String;
 
 namespace PromotionParser
 {
@@ -15,21 +16,22 @@ namespace PromotionParser
         // Setup classes
         public void Run()
         {
-            var reader = new FileReader(); // Initialize the FileReader
-            var parser = new Parser(); // Initialize the xls file parser
-            var filename = reader.ReadFromFile(); // Load the file to memory TODO: Move this to the StorageManager.
-            var storage = new StorageManager(filename); // Initialize the storage manager                        
-
-            parser.Parse(filename); // Parse the xls file
-
-            storage.SaveToMemory(parser.Result); // save the List<IPromotion> to the StorageManager.
-
-            if (MessageBox.Show("Vil du lagre resultatet som en xml-fil?", "Lagre", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            try
             {
-                storage.SaveToFile(parser.Result, new FileInfo("ostekake.xml")); // Save the List to a xml file.
-            }           
+                var parser = new Parser(); // Initialize the xls file parser
+                var storage = new StorageManager(); // Initialize the storage manager
+                var importedExcelFile = storage.ImportExcelFile(); // Load the file to memory
             
-            // Generate report.
+                parser.Parse(importedExcelFile); // Parse the xls file
+                storage.SaveToMemory(parser.Result); // save the List<IPromotion> to the StorageManager.
+                storage.SaveToFile(parser.Result, new FileInfo("ostekake.xml")); // Save the List to a xml file.
+            
+                // Generate report.
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"{e.Message}{Environment.NewLine}{Environment.NewLine}{e.InnerException?.Message ?? Empty}", "Det oppstod en feil", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            }
         }
     }
 }
