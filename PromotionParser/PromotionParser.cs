@@ -17,7 +17,7 @@ namespace PromotionParser
         {
             var reader = new FileReader(); // Initialize the FileReader
             var parser = new Parser(); // Initialize the xls file parser
-            var filename = reader.ReadFromFile(); // Load the file to memory
+            var filename = reader.ReadFromFile(); // Load the file to memory TODO: Move this to the StorageManager.
             var storage = new StorageManager(filename); // Initialize the storage manager                        
 
             parser.Parse(filename); // Parse the xls file

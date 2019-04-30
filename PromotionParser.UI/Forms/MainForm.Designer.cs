@@ -33,25 +33,29 @@
             // 
             // TestButton
             // 
-            this.TestButton.Location = new System.Drawing.Point(12, 12);
+            this.TestButton.Location = new System.Drawing.Point(14, 14);
+            this.TestButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TestButton.Name = "TestButton";
-            this.TestButton.Size = new System.Drawing.Size(75, 23);
+            this.TestButton.Size = new System.Drawing.Size(88, 27);
             this.TestButton.TabIndex = 0;
             this.TestButton.Text = "Test";
             this.TestButton.UseVisualStyleBackColor = true;
             this.TestButton.Click += new System.EventHandler(this.TestButton_Click);
             // 
-            // Form1
+            // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(354, 114);
+            this.ClientSize = new System.Drawing.Size(413, 132);
             this.Controls.Add(this.TestButton);
-            this.Name = "Form1";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Testing";
             this.ResumeLayout(false);
-
         }
 
         #endregion

@@ -32,10 +32,8 @@ namespace PromotionParser.Managers
         {
             if (result.Count > 0)
             {
-                using (var f = new FileWriter(fileInfo))
-                {
-                    f.WriteToFile();
-                }
+                var f = new FileWriter(fileInfo);
+                f.WriteToFile();
             }
         }
 
