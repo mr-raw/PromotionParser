@@ -9,14 +9,8 @@ namespace PromotionParser.Workers
         public FileInfo ReadFromFile()
         {
             var ofd = new OpenFileDialog();
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                return new FileInfo(ofd.FileName);
-            }
-            else
-            {
-                throw new Exception("Det oppstod en feil ved lesing av fil.");
-            }
+            if (ofd.ShowDialog() == DialogResult.OK) return new FileInfo(ofd.FileName);
+            throw new Exception($"Det oppstod en feil ved lesing av fil: {ofd.FileName}");
         }
     }
 }

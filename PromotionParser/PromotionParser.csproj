@@ -52,8 +52,9 @@
     <Compile Include="Data\IPromotion.cs" />
     <Compile Include="Data\IReport.cs" />
     <Compile Include="Data\PromotionItem.cs" />
-    <Compile Include="Data\RawPromotion.cs" />
-    <Compile Include="Data\TestPromotion.cs" />
+    <Compile Include="Data\PromotionTypes\ExtraDiscountPromotion.cs" />
+    <Compile Include="Data\PromotionTypes\FallBackPromotion.cs" />
+    <Compile Include="Data\PromotionStartStopPoints.cs" />
     <Compile Include="Managers\StorageManager.cs" />
     <Compile Include="PromotionParser.cs" />
     <Compile Include="Workers\FileReader.cs" />
@@ -64,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\ReportTypes" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
