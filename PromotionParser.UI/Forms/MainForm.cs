@@ -11,16 +11,9 @@ namespace PromotionParser.UI.Forms
         }
 
         private void TestButton_Click(object sender, EventArgs e)
-        {            
-            try
-            {
-                var p = new PromotionParser();
-                p.Run();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Det oppstod en feil", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }            
+        {   
+            var p = new PromotionParser();
+            p.Run();
         }
     }
 }
