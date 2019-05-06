@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -101,31 +101,35 @@ namespace PromotionParser.Workers
                 {
                     if (!DateTime.TryParse(GetCellData(package, line.StartRow, 17), out date))
                     {
-                        date = DateTime.MinValue;
+                        date = DateTime.MinValue; // Fallback is 01.01.0001 (I think)
                     }
 
                     if (!double.TryParse(GetCellData(package, line.StartRow, 13).Replace("%", string.Empty).Trim(), out discount))
                     {
-                        discount = 0.0;
+                        discount = 0.0; // Fallback is 0.0
                     }
                 }
                 catch (Exception)
                 {
-                    throw new Exception($"Det oppstod en feil ved dekoding av inndata.");
+                    throw new Exception($"Det oppstod en feil ved analysering av inndata.");
                 }
 
+                if (true) // Insert logic here to choose the correct PromotionType. Maybe switch statement would be better?
+                {
+                    
+                }
                 return new FallBackPromotion // Test. We have to generate the right promotion here at a later time.
                 {
-                    PromotionItemsList = new List<PromotionItem>(),
-                    FromWeek = fromWeek,
-                    ToWeek = toWeek,
-                    Vendor = vendor,
+                    PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem
+                    FromWeek = fromWeek, // Fetched from the local method
+                    ToWeek = toWeek, // Fetched from the local method
+                    Vendor = vendor, // Fetched from the local method
                     Sel = GetCellData(package, line.StartRow, 8),
                     Type = GetCellData(package, line.StartRow, 12),
-                    Discount = discount,
+                    Discount = discount, // discount is parsed from column 13
                     HowToOrder = GetCellData(package, line.StartRow, 15),
                     Source = GetCellData(package, line.StartRow, 16),
-                    CancelDeadline = date,
+                    CancelDeadline = date, // The date is parsed from column 17
                     Placement = GetCellData(package, line.StartRow, 18),
                     Comments = GetCellData(package, line.StartRow, 19),
                     ResponsiblePerson = GetCellData(package, line.StartRow, 20),
