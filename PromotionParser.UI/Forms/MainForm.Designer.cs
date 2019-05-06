@@ -29,11 +29,12 @@
         private void InitializeComponent()
         {
             this.TestButton = new System.Windows.Forms.Button();
+            this.ResultTreeView = new System.Windows.Forms.TreeView();
             this.SuspendLayout();
             // 
             // TestButton
             // 
-            this.TestButton.Location = new System.Drawing.Point(14, 14);
+            this.TestButton.Location = new System.Drawing.Point(669, 408);
             this.TestButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TestButton.Name = "TestButton";
             this.TestButton.Size = new System.Drawing.Size(88, 27);
@@ -42,11 +43,19 @@
             this.TestButton.UseVisualStyleBackColor = true;
             this.TestButton.Click += new System.EventHandler(this.TestButton_Click);
             // 
+            // ResultTreeView
+            // 
+            this.ResultTreeView.Location = new System.Drawing.Point(12, 12);
+            this.ResultTreeView.Name = "ResultTreeView";
+            this.ResultTreeView.Size = new System.Drawing.Size(746, 390);
+            this.ResultTreeView.TabIndex = 1;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(413, 132);
+            this.ClientSize = new System.Drawing.Size(770, 443);
+            this.Controls.Add(this.ResultTreeView);
             this.Controls.Add(this.TestButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -60,6 +69,7 @@
 
         #endregion
 
+        private System.Windows.Forms.TreeView ResultTreeView;
         private System.Windows.Forms.Button TestButton;
     }
 }
