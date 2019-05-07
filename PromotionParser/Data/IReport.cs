@@ -8,6 +8,5 @@ namespace PromotionParser.Data
 {
     interface IReport
     {
-        int MyProperty { get; set; }
     }
 }

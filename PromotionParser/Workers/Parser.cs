@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml;
 using PromotionParser.Data;
 using PromotionParser.Data.PromotionTypes;
+using static System.String;
 using static System.Text.RegularExpressions.Regex;
 
 namespace PromotionParser.Workers
@@ -23,9 +24,9 @@ namespace PromotionParser.Workers
                 try
                 {
                     var worksheet = p.Workbook.Worksheets["Pivot"]; 
-                    InsertStartRow(worksheet); // Set the StartRow for all the promotions.
-                    InsertEndRow(worksheet); // Set the EndRow for all the promotion.
-                    AddDataToList(p);
+                    InsertStartRow(worksheet); // Pass 1: Set the StartRow for all the promotions.
+                    InsertEndRow(worksheet); // Pass 2: Set the EndRow for all the promotion.
+                    AddDataToList(p); // Pass 3: Populate the list with the help of the StartRow and the EndRow.
                 }
                 catch (Exception ex)
                 {
@@ -37,6 +38,7 @@ namespace PromotionParser.Workers
         private void AddDataToList(ExcelPackage package)
         {
             if (_rawPromotionList.Count == 0) throw new Exception("Listen med rådata er tom, kan ikke fortsette");
+            
             foreach (var promotion in _rawPromotionList)
             {
                 var promo = ReturnCorrectPromotion(package, promotion); // First generate the Promotion, then add all the PromotionItems
@@ -49,12 +51,12 @@ namespace PromotionParser.Workers
                     {
                         if (!DateTime.TryParse(GetCellData(package, i, 17), out date))
                         {
-                            date = DateTime.MinValue;
+                            date = DateTime.MinValue; // Fallback value.
                         }
 
-                        if (!double.TryParse(GetCellData(package, i, 13).Replace("%", String.Empty).Trim(), out discount))
+                        if (!double.TryParse(GetCellData(package, i, 13).Replace("%", Empty).Trim(), out discount))
                         {
-                            discount = double.MinValue;
+                            discount = 0.0; // Fallback value.
                         }
                     }
                     catch (Exception)
@@ -88,7 +90,8 @@ namespace PromotionParser.Workers
 
         private static IPromotion ReturnCorrectPromotion(ExcelPackage package, PromotionStartStopPoints line) // Should maybe change the name of this method?
         {
-            var rawData = string.Empty; // Initialize here so that the variable can be read in the catch scope.
+            
+            var rawData = Empty; // Initialize here so that the variable can be read in the catch scope.
 
             try
             {
@@ -104,7 +107,7 @@ namespace PromotionParser.Workers
                         date = DateTime.MinValue; // Fallback is 01.01.0001 (I think)
                     }
 
-                    if (!double.TryParse(GetCellData(package, line.StartRow, 13).Replace("%", string.Empty).Trim(), out discount))
+                    if (!double.TryParse(GetCellData(package, line.StartRow, 13).Replace("%", Empty).Trim(), out discount))
                     {
                         discount = 0.0; // Fallback is 0.0
                     }
@@ -114,29 +117,187 @@ namespace PromotionParser.Workers
                     throw new Exception($"Det oppstod en feil ved analysering av inndata.");
                 }
 
-                if (true) // Insert logic here to choose the correct PromotionType. Maybe switch statement would be better?
+                if (GetCellData(package, line.StartRow, 15) == "NEGATIV RESPONS") // ExtraDiscount
                 {
-                    
+                    return new NegativResponsPromotion // 
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
                 }
-                return new FallBackPromotion // Test. We have to generate the right promotion here at a later time.
+                if (GetCellData(package, line.StartRow, 18) == "EKSTRARABATT") // ExtraDiscount
                 {
-                    PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem
-                    FromWeek = fromWeek, // Fetched from the local method
-                    ToWeek = toWeek, // Fetched from the local method
-                    Vendor = vendor, // Fetched from the local method
-                    Sel = GetCellData(package, line.StartRow, 8),
-                    Type = GetCellData(package, line.StartRow, 12),
-                    Discount = discount, // discount is parsed from column 13
-                    HowToOrder = GetCellData(package, line.StartRow, 15),
-                    Source = GetCellData(package, line.StartRow, 16),
-                    CancelDeadline = date, // The date is parsed from column 17
-                    Placement = GetCellData(package, line.StartRow, 18),
-                    Comments = GetCellData(package, line.StartRow, 19),
-                    ResponsiblePerson = GetCellData(package, line.StartRow, 20),
-                    AddedWeek = GetCellData(package, line.StartRow, 21)
-                };
+                    return new ExtraDiscountPromotion // Test. We have to generate the right promotion here at a later time.
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                }
+                if (GetCellData(package, line.StartRow, 18) == "ØL/MINERALVANN") // Beer and mineral water promotion.
+                {
+                    return new BeerMineralPromotion
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                } 
+                if (GetCellData(package, line.StartRow, 18) == "AKTIVITET") // Normal Promotion\
+                {
+                    return new NormalPromotion
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                }
+                if (GetCellData(package, line.StartRow, 18) == "ENDEDISK") // Endedisk promotion
+                {
+                    return new EndediskPromotion
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                }
+                if (GetCellData(package, line.StartRow, 18) == "PALLEBORD") // Pallebord Promotion
+                {
+                    return new PallebordPromotion()
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                }
+                if (GetCellData(package, line.StartRow, 18) == "SESONG") // Sesong Promotion
+                {
+                    return new SeasonPromotion
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                }
+                if (GetCellData(package, line.StartRow, 18) == "TRAPPESJOKKER") // Trappesjokker Promotion. Looks like it is not used in 2019.
+                {
+                    return new TrappesjokkerPromotion
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                }
+                {
+                    return new FallBackPromotion // Fallback Promotion. Not sure why this would be thrown.
+                    {
+                        PromotionItemsList = new List<PromotionItem>(), // Initializes the list of PromotionItem.
+                        FromWeek = fromWeek, // Fetched from the local method
+                        ToWeek = toWeek, // Fetched from the local method
+                        Vendor = vendor, // Fetched from the local method
+                        Sel = GetCellData(package, line.StartRow, 8),
+                        Type = GetCellData(package, line.StartRow, 12),
+                        Discount = discount, // discount is parsed from column 13
+                        HowToOrder = GetCellData(package, line.StartRow, 15),
+                        Source = GetCellData(package, line.StartRow, 16),
+                        CancelDeadline = date, // The date is parsed from column 17
+                        Placement = GetCellData(package, line.StartRow, 18),
+                        Comments = GetCellData(package, line.StartRow, 19),
+                        ResponsiblePerson = GetCellData(package, line.StartRow, 20),
+                        AddedWeek = GetCellData(package, line.StartRow, 21)
+                    };
+                }
             
-                (string FromWeek, string ToWeek, string Vendor) SplitRawData() // This is a local function. How cool is that?
+                (string FromWeek, string ToWeek, string Vendor) SplitRawData() // This is a local function. Returns three strings (fromWeek, toWeek and vendor). How cool is that?
                 {
                     const RegexOptions options = RegexOptions.Multiline;
 
@@ -170,7 +331,7 @@ namespace PromotionParser.Workers
                 var cellContent = worksheet.Cells[i, 6].Text;
                 // First find the rows where the promotions start
 
-                if (cellContent != string.Empty)
+                if (cellContent != Empty)
                 {
                     _rawPromotionList.Add(new PromotionStartStopPoints
                     {

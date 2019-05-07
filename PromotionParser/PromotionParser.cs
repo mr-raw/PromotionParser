@@ -41,8 +41,9 @@ namespace PromotionParser
                     _promotions = parser.Result;
                 }
                 StorageManager.SaveToFile(parser.Result, new FileInfo("ostekake.xml")); // Save the List to a xml file.
-
-                // Generate report.
+                
+                var reportGenerator = new ReportGenerator(parser.Result);
+                reportGenerator.Generate();
             }
             catch (Exception e)
             {

@@ -17,5 +17,10 @@ namespace PromotionParser.Data
         public string Comments { get; set; } // "KOMMENTARER"
         public string ResponsiblePerson { get; set; } // "ANSV."  
         public string AddedWeek { get; set; } // "INN UKE" This has to be per item because there were multiple "answers"
+
+        public override string ToString()
+        {
+            return $"{ProductText} ({Epd})";
+        }
     }
 }
